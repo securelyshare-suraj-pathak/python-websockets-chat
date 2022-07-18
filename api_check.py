@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import json
 
-from requests_oauthlib import OAuth2Session
+# from requests_oauthlib import OAuth2Session
 import time
 import openapi_client
 from openapi_client.rest import ApiException
