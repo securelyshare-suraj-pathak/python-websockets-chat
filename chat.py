@@ -14,7 +14,7 @@ import gevent
 from flask import Flask, render_template
 from flask_sockets import Sockets
 import json
-from api_check import get_encrypted
+from api_check import get_encrypted, initialize_font_id
 # REDIS_URL = os.environ['REDIS_URL']
 REDIS_URL = "redis://127.0.0.1"
 REDIS_CHAN = 'chat'
@@ -24,7 +24,7 @@ app.debug = 'DEBUG' in os.environ
 
 sockets = Sockets(app)
 redis = redis.from_url(REDIS_URL)
-
+font_id = initialize_font_id()
 
 
 class ChatBackend(object):
@@ -70,7 +70,7 @@ chats.start()
 
 @app.route('/')
 def hello():
-    return render_template('index.html')
+    return render_template('index.html', font_id=font_id)
 
 @sockets.route('/submit')
 def inbox(ws):
@@ -84,7 +84,7 @@ def inbox(ws):
             print(f"message = {message}")
             _m["text"] = get_encrypted(_m["text"])
             message = json.dumps(_m)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, TypeError):
             print(f"DECODE ERROR: {message}")
 
         if message:
