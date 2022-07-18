@@ -13,7 +13,8 @@ import redis
 import gevent
 from flask import Flask, render_template
 from flask_sockets import Sockets
-
+import json
+from api_check import get_encrypted
 # REDIS_URL = os.environ['REDIS_URL']
 REDIS_URL = "redis://127.0.0.1"
 REDIS_CHAN = 'chat'
@@ -78,6 +79,13 @@ def inbox(ws):
         # Sleep to prevent *constant* context-switches.
         gevent.sleep(0.1)
         message = ws.receive()
+        try:
+            _m = json.loads(message)
+            print(f"message = {message}")
+            _m["text"] = get_encrypted(_m["text"])
+            message = json.dumps(_m)
+        except json.JSONDecodeError:
+            print(f"DECODE ERROR: {message}")
 
         if message:
             app.logger.info(u'Inserting message: {}'.format(message))
